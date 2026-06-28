@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -7,34 +9,39 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Your Gemini API key - stored securely in environment variables
-// For local development, create a .env file with: GEMINI_API_KEY=your_key_here
-// For production, set this in your hosting platform's environment variables
+// Serve static files (your HTML)
+app.use(express.static('.'));
+
+// Your Gemini API key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!GEMINI_API_KEY) {
-    console.warn('⚠️  WARNING: GEMINI_API_KEY is not set in environment variables!');
-    console.warn('⚠️  Set it using: export GEMINI_API_KEY=your_key_here');
+    console.warn('⚠️  WARNING: GEMINI_API_KEY is not set!');
 }
 
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Gemini proxy is running' });
+    res.json({ 
+        status: 'ok', 
+        message: 'Gemini proxy is running',
+        apiKeySet: !!GEMINI_API_KEY,
+        serveStatic: true
+    });
 });
 
 // Main API endpoint
 app.post('/api/gemini', async (req, res) => {
     try {
-        // Check if API key is available
         if (!GEMINI_API_KEY) {
             return res.status(500).json({ 
-                error: 'Server configuration error: API key missing' 
+                error: 'API key not configured on server' 
             });
         }
 
-        // Forward the request to Gemini API
+        console.log('📨 Received message:', req.body.contents?.[0]?.parts?.[0]?.text || 'Empty');
+
         const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
@@ -43,23 +50,26 @@ app.post('/api/gemini', async (req, res) => {
             body: JSON.stringify(req.body),
         });
 
-        // Get the response data
         const data = await response.json();
-
-        // Forward the status code and data back to the client
         res.status(response.status).json(data);
 
     } catch (error) {
-        console.error('Proxy error:', error);
+        console.error('❌ Proxy error:', error);
         res.status(500).json({ 
             error: 'Internal server error: ' + error.message 
         });
     }
 });
 
+// Redirect root to index.html
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
 // Start the server
 app.listen(PORT, () => {
-    console.log(`🚀 Gemini proxy server running on port ${PORT}`);
-    console.log(`📍 Health check: http://localhost:${PORT}/health`);
-    console.log(`📍 API endpoint: http://localhost:${PORT}/api/gemini`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(`📍 API: http://localhost:${PORT}/api/gemini`);
+    console.log(`📍 Health: http://localhost:${PORT}/health`);
 });
