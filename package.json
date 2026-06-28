@@ -1,7 +1,7 @@
 {
   "name": "gemini-sexy-talk",
   "version": "2.0.0",
-  "description": "AI Sexy Talk with Gemini and Google TTS",
+  "description": "AI Sexy Talk with Gemini - Free Voice",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
