@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gemini · Sexy Talk · Femme Fatale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0508;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+        }
+
+        .app {
+            max-width: 720px;
+            width: 100%;
+            background: rgba(18, 8, 14, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 4rem 4rem 2.8rem 2.8rem;
+            padding: 2rem 1.8rem 2rem;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 80, 160, 0.15);
+            border: 1px solid rgba(255, 100, 170, 0.08);
+            transition: box-shadow 0.4s;
+        }
+
+        .app:hover {
+            box-shadow: 0 40px 80px rgba(180, 40, 120, 0.25), 0 0 0 1px rgba(255, 120, 190, 0.25);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.2rem;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fcc8e3, #ff8ec4, #f5a8d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge {
+            background: rgba(200, 60, 130, 0.15);
+            padding: 6px 16px 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: #e6b6d0;
+            border: 1px solid rgba(255, 100, 170, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .badge .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #f06ab0;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 14px #f06ab0aa;
+            animation: breathe 1.6s infinite alternate;
+        }
+
+        @keyframes breathe {
+            0% { opacity: 0.3; transform: scale(0.7); }
+            100% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .sub {
+            color: #af7e96;
+            font-weight: 400;
+            font-size: 0.85rem;
+            margin-bottom: 1.8rem;
+            padding-left: 4px;
+            border-left: 3px solid #ff6fa8;
+            padding-left: 14px;
+            opacity: 0.9;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .chat-window {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 2rem;
+            padding: 1.2rem 1rem;
+            min-height: 190px;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 100, 170, 0.06);
+            box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.7);
+            scroll-behavior: smooth;
+        }
+
+        .chat-window::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-window::-webkit-scrollbar-track {
+            background: #1b0f16;
+            border-radius: 20px;
+        }
+        .chat-window::-webkit-scrollbar-thumb {
+            background: #bb6b94;
+            border-radius: 20px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            font-size: 1.8rem;
+            width: 46px;
+            height: 46px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(255, 160, 200, 0.04);
+            border: 1px solid rgba(255, 120, 180, 0.08);
+        }
+
+        .bubble {
+            background: rgba(48, 20, 36, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 0.7rem 1.2rem;
+            border-radius: 1.8rem 1.8rem 1.8rem 0.5rem;
+            max-width: 80%;
+            color: #f2dce8;
+            font-weight: 400;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 110, 170, 0.06);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            word-break: break-word;
+        }
+
+        .message.user .bubble {
+            background: rgba(160, 40, 110, 0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 80, 160, 0.2);
+            border-radius: 1.8rem 1.8rem 0.5rem 1.8rem;
+            color: #ffe5f0;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.3rem 0.8rem;
+            color: #d4a0bb;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        .typing-indicator span {
+            background: #d47aa8;
+            width: 9px;
+            height: 9px;
+            border-radius: 10px;
+            display: inline-block;
+            animation: pulse 1.4s infinite both;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0% { opacity: 0.2; transform: scale(0.6); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.2; transform: scale(0.6); }
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 60px;
+            padding: 4px 4px 4px 20px;
+            border: 1px solid rgba(255, 80, 160, 0.06);
+            backdrop-filter: blur(4px);
+            align-items: center;
+        }
+
+        .input-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 14px 0;
+            font-size: 1rem;
+            color: #f3dce8;
+            outline: none;
+            font-weight: 400;
+            min-width: 0;
+        }
+
+        .input-area input::placeholder {
+            color: #9a6e82;
+            font-weight: 300;
+            letter-spacing: 0.2px;
+        }
+
+        .input-area .action-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .input-area button {
+            background: linear-gradient(135deg, #d44a8f, #b83278);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 4px 16px rgba(190, 40, 110, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-area button:active {
+            transform: scale(0.94);
+        }
+        .input-area button:disabled {
+            opacity: 0.4;
+            transform: scale(0.96);
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+
+        .mic-btn {
+            background: rgba(255, 60, 130, 0.08) !important;
+            box-shadow: none !important;
+            padding: 12px 16px !important;
+            font-size: 1.3rem !important;
+            border: 1px solid rgba(255, 100, 170, 0.08) !important;
+            background: rgba(40, 12, 28, 0.6) !important;
+            backdrop-filter: blur(4px);
+        }
+
+        .mic-btn.listening {
+            background: rgba(220, 40, 100, 0.25) !important;
+            border-color: #ff6aaa !important;
+            box-shadow: 0 0 30px #ff3080aa !important;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            font-size: 0.75rem;
+            color: #a5758d;
+            letter-spacing: 0.3px;
+            flex-wrap: wrap;
+        }
+
+        .status-row .voice-badge {
+            background: rgba(200, 60, 130, 0.1);
+            padding: 3px 16px 3px 12px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 80, 160, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400;
+        }
+
+        .footnote {
+            margin-top: 1.2rem;
+            text-align: center;
+            color: #6a4a5a;
+            font-size: 0.65rem;
+            letter-spacing: 0.4px;
+        }
+
+        @media (max-width: 500px) {
+            .app { padding: 1.2rem 0.8rem; }
+            .title { font-size: 1.6rem; }
+            .input-area { flex-wrap: wrap; background: transparent; padding: 0; gap: 8px; border: none; }
+            .input-area input { background: rgba(0,0,0,0.35); border-radius: 40px; padding: 14px 18px; width: 100%; }
+            .input-area .action-group { width: 100%; }
+            .input-area button { flex: 1; justify-content: center; }
+            .badge { font-size: 0.6rem; padding: 4px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app" id="app">
+    <div class="header">
+        <div class="title">💋 Gem·in·a</div>
+        <div class="badge"><span class="pulse-dot"></span> sexy talk</div>
+    </div>
+    <div class="sub">
+        <span>🔥 femme fatale · real‑time</span>
+        <span style="font-size:0.7rem; background: rgba(255,80,160,0.06); padding: 2px 14px; border-radius: 30px;">💬 voice + text</span>
+    </div>
+
+    <!-- chat -->
+    <div id="chatWindow" class="chat-window">
+        <div class="message">
+            <div class="avatar">💄</div>
+            <div class="bubble">Hey, baby … I've been waiting. Tell me what you desire. 💋</div>
+        </div>
+    </div>
+
+    <!-- input -->
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type or tap mic …" autofocus>
+        <div class="action-group">
+            <button class="mic-btn" id="micBtn" title="Voice input · sexy talk">🎤</button>
+            <button id="sendBtn">➤ Send</button>
+        </div>
+    </div>
+
+    <div class="status-row">
+        <span id="statusLabel">✨ ready</span>
+        <span class="voice-badge">🎙️ female · sultry tone</span>
+    </div>
+    <div class="footnote">Powered by Gemini · speaking with feeling</div>
+</div>
+
+<script>
+    (function() {
+        // -------------------- CONFIG --------------------
+        // Change this to your backend URL when deployed
+        const BACKEND_URL = window.location.origin + '/api/gemini';
+        // For local development, you can use: http://localhost:3000/api/gemini
+        // const BACKEND_URL = 'http://localhost:3000/api/gemini';
+
+        // DOM
+        const chatWindow = document.getElementById('chatWindow');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const micBtn = document.getElementById('micBtn');
+        const statusLabel = document.getElementById('statusLabel');
+
+        let isProcessing = false;
+        let isListening = false;
+        let recognition = null;
+
+        // -------------------- add message --------------------
+        function addMessage(text, sender = 'ai') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender === 'user' ? 'user' : ''}`;
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = sender === 'user' ? '👤' : '💄';
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = text;
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(bubble);
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // -------------------- typing indicator --------------------
+        let typingIndicator = null;
+        function showTyping() {
+            if (typingIndicator) return;
+            const container = document.createElement('div');
+            container.className = 'typing-indicator';
+            container.id = 'typingIndicator';
+            container.innerHTML = `<span></span><span></span><span></span>  <span style="margin-left: 4px;">thinking …</span>`;
+            chatWindow.appendChild(container);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            typingIndicator = container;
+        }
+        function hideTyping() {
+            if (typingIndicator) {
+                typingIndicator.remove();
+                typingIndicator = null;
+            }
+        }
+
+        // -------------------- SPEAK with SEXY FEELINGS --------------------
+        function speakWithFeeling(text) {
+            if (!window.speechSynthesis) {
+                console.warn('Speech synthesis not supported');
+                return;
+            }
+            window.speechSynthesis.cancel();
+
+            const cleanText = text.replace(/[#*_`~]/g, '').trim();
+            if (!cleanText) return;
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+            // Pick a female voice (sexy, sultry)
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(v => 
+                /female|zira|samantha|victoria|marissa|susan|allison|karen|tessa|emma|amelia|olivia/i.test(v.name)
+            ) || voices.find(v => v.lang.startsWith('en'));
+
+            if (femaleVoice) utterance.voice = femaleVoice;
+
+            // SEXY FEELINGS: low pitch, slower, breathy, sultry
+            utterance.pitch = 0.78;          // lower = more seductive
+            utterance.rate = 0.88;            // slow = sensual
+            utterance.volume = 1;
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // -------------------- Gemini API call via Backend --------------------
+        async function sendToGemini(userMessage) {
+            if (isProcessing) return;
+            if (!userMessage.trim()) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            micBtn.disabled = true;
+            userInput.disabled = true;
+            statusLabel.textContent = 'thinking …';
+
+            addMessage(userMessage, 'user');
+            userInput.value = '';
+            showTyping();
+
+            try {
+                // System instruction with sexy, sultry, flirty, emotional tone
+                const systemInstruction = `You are a seductive, sultry, and flirty female AI. 
+                Speak with deep emotion, passion, and a playful, enticing tone. 
+                Use romantic and sensual language. Be confident and alluring. 
+                Use emojis like 💋, 😈, 🔥, 🍸, 🌙, 💕, ✨. 
+                Keep responses short, intimate, and full of feeling. 
+                No disclaimers. Direct, warm, and desirable.`;
+
+                const payload = {
+                    system_instruction: { parts: [{ text: systemInstruction }] },
+                    contents: [ { parts: [{ text: userMessage }] } ],
+                    generationConfig: {
+                        temperature: 0.95,
+                        maxOutputTokens: 200,
+                        topP: 0.92,
+                    }
+                };
+
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    let errMsg = `Server error ${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        errMsg = errData?.error || errMsg;
+                    } catch (_) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                const candidate = data?.candidates?.[0];
+                const aiText = candidate?.content?.parts?.[0]?.text || "Mmm … say it again, baby. I love your voice.";
+
+                hideTyping();
+                addMessage(aiText, 'ai');
+
+                // SPEAK WITH SEXY FEELINGS
+                speakWithFeeling(aiText);
+
+                statusLabel.textContent = '💕 spoke with feeling';
+
+            } catch (error) {
+                console.error('Error:', error);
+                hideTyping();
+                const errorMsg = `💔 Oops: ${error.message || 'Something went wrong'}`;
+                addMessage(errorMsg, 'ai');
+                statusLabel.textContent = '⚠️ error';
+            } finally {
+                isProcessing = false;
+                sendBtn.disabled = false;
+                micBtn.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+                if (statusLabel.textContent !== '⚠️ error') {
+                    statusLabel.textContent = '✨ ready';
+                }
+            }
+        }
+
+        // -------------------- Speech Recognition --------------------
+        function initSpeech() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                micBtn.style.opacity = '0.4';
+                micBtn.title = 'Voice not supported';
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                micBtn.textContent = '⏹️';
+                statusLabel.textContent = '🎤 listening …';
+            };
+
+            recognition.onerror = (event) => {
+                console.warn('Speech error:', event.error);
+                if (event.error === 'not-allowed') {
+                    statusLabel.textContent = '🚫 mic denied';
+                } else {
+                    statusLabel.textContent = '🎤 error';
+                }
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                isListening = false;
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                isListening = false;
+                if (statusLabel.textContent === '🎤 listening …') {
+                    statusLabel.textContent = 'ready';
+                }
+            };
+
+            recognition.onresult = (event) => {
+                const last = event.results.length - 1;
+                const transcript = event.results[last][0].transcript.trim();
+                if (transcript) {
+                    userInput.value = transcript;
+                    sendToGemini(transcript);
+                } else {
+                    statusLabel.textContent = 'no speech';
+                }
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                isListening = false;
+            };
+        }
+
+        function toggleMic() {
+            if (!recognition) {
+                alert('Speech recognition not available in this browser.');
+                return;
+            }
+            if (isListening) {
+                recognition.stop();
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                isListening = false;
+                statusLabel.textContent = 'stopped';
+                return;
+            }
+            try {
+                recognition.start();
+            } catch (e) {
+                console.warn('Mic start error:', e);
+                statusLabel.textContent = '⚠️ mic error';
+            }
+        }
+
+        // -------------------- event listeners --------------------
+        function handleSend() {
+            const text = userInput.value.trim();
+            if (text && !isProcessing) {
+                sendToGemini(text);
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        micBtn.addEventListener('click', toggleMic);
+
+        // preload voices
+        if (window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        initSpeech();
+
+        // welcome sexy talk
+        setTimeout(() => {
+            speakWithFeeling("Hey baby … I'm all yours. Speak to me, or type. I'm listening.");
+        }, 600);
+
+        userInput.focus();
+        console.log('💋 Gem·in·a · sexy feelings mode active');
+    })();
+</script>
+</body>
+</html>
