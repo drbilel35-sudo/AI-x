@@ -19,7 +19,7 @@ if (!GEMINI_API_KEY) {
     console.warn('⚠️  WARNING: GEMINI_API_KEY is not set!');
 }
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 // Health check endpoint
 app.get('/health', (req, res) => {
